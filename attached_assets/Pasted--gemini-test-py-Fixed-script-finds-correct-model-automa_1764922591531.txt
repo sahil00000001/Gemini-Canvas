@@ -1,0 +1,206 @@
+# gemini_test.py
+# Fixed script - finds correct model automatically
+
+import google.generativeai as genai
+from pathlib import Path
+import sys
+
+# ============================================
+# CONFIGURATION
+# ============================================
+API_KEY = "AIzaSyD6MsdYYSr93f6ZE7_VB5X3ILNsd-s481M"
+
+# Configure the API
+genai.configure(api_key=API_KEY)
+
+# Design critique prompt
+DESIGN_PROMPT = """You are a professional graphic design critic. Analyze this design image and provide detailed feedback.
+
+Please evaluate:
+
+1. **OVERALL IMPRESSION** (2-3 sentences)
+   - First impression and emotional response
+   - Target audience appropriateness
+
+2. **VISUAL HIERARCHY**
+   - Is the most important element immediately clear?
+   - Does the eye flow naturally through the design?
+
+3. **TYPOGRAPHY**
+   - Font choices: appropriate for the message?
+   - Readability and consistency
+
+4. **COLOR ANALYSIS**
+   - Does the palette work well together?
+   - Any accessibility concerns (contrast)?
+
+5. **COMPOSITION & LAYOUT**
+   - Balance and visual weight
+   - Use of whitespace
+   - Alignment
+
+6. **SCORE** (out of 100)
+
+7. **TOP 3 PRIORITY IMPROVEMENTS**
+   - Specific, actionable changes
+
+Be specific and constructive."""
+
+
+def list_available_models():
+    """List all available Gemini models that support vision."""
+    print("\n📋 Finding available models...")
+    vision_models = []
+    
+    for model in genai.list_models():
+        # Check if model supports content generation
+        if 'generateContent' in model.supported_generation_methods:
+            model_name = model.name.replace("models/", "")
+            print(f"   ✓ {model_name}")
+            vision_models.append(model_name)
+    
+    return vision_models
+
+
+def analyze_image(image_path: str) -> str:
+    """
+    Analyze a design image using Gemini Vision API.
+    """
+    # Check if file exists
+    path = Path(image_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Image not found: {image_path}")
+    
+    print(f"\n📷 Loading image: {image_path}")
+    print(f"📊 File size: {path.stat().st_size / 1024:.1f} KB")
+    
+    # Upload image to Gemini
+    print("⬆️  Uploading to Gemini...")
+    uploaded_file = genai.upload_file(path)
+    print(f"✅ Uploaded: {uploaded_file.name}")
+    
+    # Find available models
+    available_models = list_available_models()
+    
+    # Models to try (in order of preference for vision tasks)
+    preferred_models = [
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash-001",
+        "gemini-1.5-flash-002",
+        "gemini-1.5-pro-latest",
+        "gemini-1.5-pro-001",
+        "gemini-1.5-pro-002",
+        "gemini-pro-vision",
+        "gemini-1.0-pro-vision-latest",
+        "gemini-2.0-flash-exp",
+        "gemini-exp-1206",
+    ]
+    
+    # Add any available models that contain 'flash' or 'vision' or 'pro'
+    for m in available_models:
+        if any(keyword in m.lower() for keyword in ['flash', 'vision', 'pro', '1.5', '2.0']):
+            if m not in preferred_models:
+                preferred_models.append(m)
+    
+    # Try each model
+    model = None
+    working_model_name = None
+    
+    for model_name in preferred_models:
+        try:
+            print(f"\n🤖 Trying model: {model_name}")
+            model = genai.GenerativeModel(model_name)
+            
+            # Test if model works with a simple generation
+            test_response = model.generate_content("Hi")
+            if test_response.text:
+                print(f"   ✅ Model {model_name} works!")
+                working_model_name = model_name
+                break
+        except Exception as e:
+            print(f"   ❌ Failed: {str(e)[:50]}...")
+            continue
+    
+    if model is None or working_model_name is None:
+        # Last resort: try to use the first available model
+        print("\n⚠️  Trying first available model as fallback...")
+        if available_models:
+            working_model_name = available_models[0]
+            model = genai.GenerativeModel(working_model_name)
+        else:
+            raise Exception("No Gemini model available. Check your API key.")
+    
+    # Generate analysis with image
+    print(f"\n🔍 Analyzing design with {working_model_name}...")
+    
+    try:
+        response = model.generate_content([
+            DESIGN_PROMPT,
+            uploaded_file
+        ])
+    except Exception as e:
+        # Try alternative format
+        print("   Trying alternative request format...")
+        response = model.generate_content(
+            contents=[
+                {
+                    "parts": [
+                        {"text": DESIGN_PROMPT},
+                        {"file_data": {"file_uri": uploaded_file.uri, "mime_type": uploaded_file.mime_type}}
+                    ]
+                }
+            ]
+        )
+    
+    # Clean up uploaded file
+    try:
+        genai.delete_file(uploaded_file.name)
+        print("🗑️  Cleaned up uploaded file")
+    except:
+        pass
+    
+    return response.text
+
+
+def main():
+    """Main function."""
+    
+    print("=" * 60)
+    print("🎨 GEMINI DESIGN CRITIQUE TEST")
+    print("=" * 60)
+    
+    # Get image path
+    if len(sys.argv) > 1:
+        image_path = sys.argv[1]
+    else:
+        print("\nEnter the path to your design image:")
+        image_path = input("> ").strip().strip('"').strip("'")
+    
+    if not image_path:
+        print("❌ No image path provided")
+        return
+    
+    try:
+        result = analyze_image(image_path)
+        
+        print("\n" + "=" * 60)
+        print("📋 DESIGN CRITIQUE RESULTS")
+        print("=" * 60)
+        print(result)
+        print("=" * 60)
+        print("✅ Analysis complete!")
+        
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        
+        # Additional debug info
+        print("\n🔧 Debug: Listing all models your API key can access...")
+        try:
+            for m in genai.list_models():
+                print(f"   - {m.name}")
+        except Exception as e2:
+            print(f"   Could not list models: {e2}")
+
+
+if __name__ == "__main__":
+    main()
