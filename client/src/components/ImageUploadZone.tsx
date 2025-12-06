@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UploadScene } from "./3d/UploadScene";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageUploadZoneProps {
   onImageUpload: (imageData: string) => void;
@@ -48,11 +49,32 @@ export function ImageUploadZone({
 
   if (uploadedImage) {
     return (
-      <div className="relative w-full h-full flex items-center justify-center p-6">
-        <div className="relative max-w-full max-h-full animate-float">
-          <div className="absolute -inset-3 bg-gradient-to-r from-primary/30 via-purple-500/30 to-pink-500/30 rounded-2xl blur-xl opacity-60" />
+      <motion.div 
+        className="relative w-full h-full flex items-center justify-center p-6"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      >
+        <motion.div 
+          className="relative max-w-full max-h-full"
+          animate={{ y: [0, -10, 0] }}
+          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+        >
+          <motion.div 
+            className="absolute -inset-3 bg-gradient-to-r from-primary/30 via-purple-500/30 to-pink-500/30 rounded-2xl blur-xl"
+            animate={{ 
+              opacity: [0.4, 0.7, 0.4],
+              scale: [1, 1.05, 1]
+            }}
+            transition={{ repeat: Infinity, duration: 3 }}
+          />
           <div className="relative bg-card rounded-xl overflow-hidden shadow-3d border border-card-border">
-            <div className="absolute top-2 right-2 z-10">
+            <motion.div 
+              className="absolute top-2 right-2 z-10"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
               <Button
                 variant="secondary"
                 size="icon"
@@ -65,16 +87,19 @@ export function ImageUploadZone({
               >
                 <X className="w-4 h-4" />
               </Button>
-            </div>
-            <img
+            </motion.div>
+            <motion.img
               src={uploadedImage}
               alt="Uploaded design"
               className="max-w-full max-h-[500px] object-contain"
               data-testid="img-uploaded-design"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
             />
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   }
 

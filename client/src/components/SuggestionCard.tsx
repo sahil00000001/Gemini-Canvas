@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 import {
   Eye,
   Layers,
@@ -11,6 +12,7 @@ import {
   ArrowUp,
   ChevronDown,
   ChevronUp,
+  CheckCircle2,
 } from "lucide-react";
 import type { SuggestionCard as SuggestionCardType } from "@shared/schema";
 
@@ -41,55 +43,20 @@ interface SuggestionCardProps {
 
 export function SuggestionCard({ card, index }: SuggestionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1, shadow: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const Icon = iconMap[card.icon] || Eye;
   const colorClass = colorClasses[card.color] || colorClasses.violet;
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    
-    const tiltX = (y - 0.5) * 15;
-    const tiltY = (x - 0.5) * -15;
-    
-    setTilt({
-      x: tiltX,
-      y: tiltY,
-      scale: 1.02,
-      shadow: 30,
-    });
-  }, []);
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-    setTilt({ x: 0, y: 0, scale: 1, shadow: 0 });
-  }, []);
 
   const isScore = card.category === "score";
   const isImprovements = card.category === "improvements";
   const needsTruncation = typeof card.content === "string" && card.content.length > 200;
 
   return (
-    <div
-      ref={cardRef}
+    <motion.div
       className={`card-3d ${card.span === 2 ? "col-span-1 md:col-span-2" : ""}`}
-      style={{
-        animationDelay: `${index * 0.1}s`,
-        perspective: "1000px",
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.4 }}
       data-testid={`card-suggestion-${card.category}`}
     >
       <Card
@@ -98,21 +65,9 @@ export function SuggestionCard({ card, index }: SuggestionCardProps) {
           bg-gradient-to-br ${colorClass}
           glass
           cursor-pointer
-          will-change-transform
+          hover-elevate
+          transition-all duration-300
         `}
-        style={{
-          transform: `
-            perspective(1000px) 
-            rotateX(${tilt.x}deg) 
-            rotateY(${tilt.y}deg) 
-            scale(${tilt.scale})
-            translateZ(${isHovered ? 20 : 0}px)
-          `,
-          boxShadow: isHovered 
-            ? `0 ${10 + tilt.shadow}px ${30 + tilt.shadow}px rgba(139, 92, 246, 0.2), 0 0 60px rgba(139, 92, 246, 0.1)`
-            : `0 4px 12px rgba(0, 0, 0, 0.1)`,
-          transition: "transform 0.15s ease-out, box-shadow 0.3s ease-out",
-        }}
         onClick={() => !isScore && setIsExpanded(!isExpanded)}
       >
         <CardHeader className="flex flex-row items-center gap-3 pb-2">
@@ -148,19 +103,32 @@ export function SuggestionCard({ card, index }: SuggestionCardProps) {
               </div>
             </div>
           ) : isImprovements ? (
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {(card.content as string[]).map((improvement, idx) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <Badge 
-                    variant="outline" 
-                    className="min-w-[24px] h-6 flex items-center justify-center font-display font-bold shrink-0"
-                  >
-                    {idx + 1}
-                  </Badge>
-                  <span className="text-sm leading-relaxed" data-testid={`text-improvement-${idx + 1}`}>
-                    {improvement}
-                  </span>
-                </li>
+                <motion.li 
+                  key={idx} 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.15, duration: 0.4 }}
+                  className="flex items-start gap-4 p-4 rounded-xl bg-background/40 backdrop-blur-sm border border-border/30 hover:border-primary/40 transition-all duration-300 group"
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs font-display font-semibold bg-primary/10 text-primary border-primary/20"
+                      >
+                        Priority {idx + 1}
+                      </Badge>
+                    </div>
+                    <p className="text-sm leading-relaxed text-foreground/90" data-testid={`text-improvement-${idx + 1}`}>
+                      {improvement}
+                    </p>
+                  </div>
+                </motion.li>
               ))}
             </ul>
           ) : (
@@ -175,6 +143,6 @@ export function SuggestionCard({ card, index }: SuggestionCardProps) {
           )}
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }

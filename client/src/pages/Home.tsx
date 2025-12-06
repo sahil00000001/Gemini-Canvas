@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { ImageUploadZone } from "@/components/ImageUploadZone";
 import { SuggestionsGrid } from "@/components/SuggestionsGrid";
@@ -25,7 +26,7 @@ export default function Home() {
         imageData,
         modelType,
       });
-      return response as AnalyzeResponse;
+      return await response.json() as AnalyzeResponse;
     },
     onSuccess: (data) => {
       if (data.success && data.critique) {
@@ -78,8 +79,19 @@ export default function Home() {
       />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8 min-h-[calc(100vh-12rem)]">
-          <section className="flex flex-col" data-testid="section-upload">
+        <motion.div 
+          className="grid lg:grid-cols-2 gap-8 min-h-[calc(100vh-12rem)]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <motion.section 
+            className="flex flex-col" 
+            data-testid="section-upload"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, type: "spring", stiffness: 100 }}
+          >
             <div className="flex-1 flex flex-col">
               <ImageUploadZone
                 onImageUpload={handleImageUpload}
@@ -89,7 +101,12 @@ export default function Home() {
               />
               
               {uploadedImage && !critique && (
-                <div className="mt-6 flex justify-center">
+                <motion.div 
+                  className="mt-6 flex justify-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
                   <Button
                     size="lg"
                     onClick={handleAnalyze}
@@ -97,24 +114,27 @@ export default function Home() {
                     className="gap-2 px-8 glow"
                     data-testid="button-analyze"
                   >
-                    <Sparkles className="w-5 h-5" />
+                    <Sparkles className={`w-5 h-5 ${analyzeMutation.isPending ? 'animate-spin' : ''}`} />
                     {analyzeMutation.isPending ? "Analyzing..." : "Analyze Design"}
                   </Button>
-                </div>
+                </motion.div>
               )}
             </div>
-          </section>
+          </motion.section>
 
-          <section 
+          <motion.section 
             className="bg-card/30 rounded-2xl border border-border/50 overflow-auto max-h-[calc(100vh-12rem)]"
             data-testid="section-suggestions"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4, type: "spring", stiffness: 100 }}
           >
             <SuggestionsGrid
               critique={critique}
               isLoading={analyzeMutation.isPending}
             />
-          </section>
-        </div>
+          </motion.section>
+        </motion.div>
       </main>
 
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />

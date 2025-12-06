@@ -1,4 +1,5 @@
 import { SuggestionCard } from "./SuggestionCard";
+import { motion } from "framer-motion";
 import type { DesignCritique, SuggestionCard as SuggestionCardType } from "@shared/schema";
 
 interface SuggestionsGridProps {
@@ -128,11 +129,44 @@ export function SuggestionsGrid({ critique, isLoading }: SuggestionsGridProps) {
 
   const cards = createSuggestionCards(critique);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 100,
+      },
+    },
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6" data-testid="grid-suggestions">
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6" 
+      data-testid="grid-suggestions"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {cards.map((card, index) => (
-        <SuggestionCard key={card.id} card={card} index={index} />
+        <motion.div key={card.id} variants={itemVariants}>
+          <SuggestionCard card={card} index={index} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
