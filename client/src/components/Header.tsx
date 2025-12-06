@@ -1,27 +1,38 @@
-import { Sparkles, Info } from "lucide-react";
+import { Sparkles, Info, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModelToggle } from "./ModelToggle";
 import { motion } from "framer-motion";
+import { useLocation } from "wouter";
 
 interface HeaderProps {
   modelType: "light" | "heavy";
   onModelChange: (value: "light" | "heavy") => void;
-  onAboutClick: () => void;
 }
 
-export function Header({ modelType, onModelChange, onAboutClick }: HeaderProps) {
+export function Header({ modelType, onModelChange }: HeaderProps) {
+  const [location, setLocation] = useLocation();
+
+  const handleHomeClick = () => {
+    setLocation("/");
+  };
+
+  const handleAboutClick = () => {
+    setLocation("/about");
+  };
+
   return (
     <motion.header 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg"
+      className="fixed top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg"
     >
       <div className="container flex h-16 items-center justify-between gap-4 px-4 md:px-8">
         <motion.div 
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 cursor-pointer"
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          onClick={handleHomeClick}
         >
           <div className="relative p-2 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20">
             <div className="absolute inset-0 rounded-lg bg-primary/10 blur-md" />
@@ -54,7 +65,22 @@ export function Header({ modelType, onModelChange, onAboutClick }: HeaderProps) 
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={onAboutClick}
+              onClick={handleHomeClick}
+              className="gap-2"
+              data-testid="button-home"
+            >
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleAboutClick}
               className="gap-2"
               data-testid="button-about"
             >

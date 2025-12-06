@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { ImageUploadZone } from "@/components/ImageUploadZone";
 import { SuggestionsGrid } from "@/components/SuggestionsGrid";
-import { AboutModal } from "@/components/AboutModal";
 import { LoadingScene } from "@/components/3d/LoadingScene";
 import { BackgroundScene } from "@/components/3d/BackgroundScene";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ export default function Home() {
   const [modelType, setModelType] = useState<"light" | "heavy">("light");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [critique, setCritique] = useState<DesignCritique | null>(null);
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const { toast } = useToast();
 
   const analyzeMutation = useMutation({
@@ -75,12 +73,11 @@ export default function Home() {
       <Header
         modelType={modelType}
         onModelChange={setModelType}
-        onAboutClick={() => setIsAboutOpen(true)}
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-[1800px]">
+      <main className="container mx-auto px-4 py-6 pt-24 md:pt-20 max-w-[1800px]">
         <motion.div 
-          className="grid lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6 min-h-[calc(100vh-10rem)]"
+          className="grid lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -123,7 +120,7 @@ export default function Home() {
           </motion.section>
 
           <motion.section 
-            className="bg-card/30 rounded-2xl border border-border/50 overflow-auto min-h-[600px] max-h-[calc(100vh-8rem)]"
+            className="bg-card/30 rounded-2xl border border-border/50 overflow-auto"
             data-testid="section-suggestions"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -136,8 +133,6 @@ export default function Home() {
           </motion.section>
         </motion.div>
       </main>
-
-      <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       
       {analyzeMutation.isPending && <LoadingScene />}
     </div>
