@@ -1,4 +1,12 @@
-import { X, Linkedin, Mail, Phone, Code, Briefcase, GraduationCap, Sparkles } from "lucide-react";
+import { X, Linkedin, Mail, Phone, Code, Briefcase, GraduationCap, Sparkles, Brain, Users, Rocket } from "lucide-react";
+import { 
+  SiJavascript, SiTypescript, SiPython, SiCplusplus,
+  SiDotnet, SiSpringboot, SiReact, SiRedux, SiHtml5, SiCss3,
+  SiMysql, SiPostgresql, SiMongodb,
+  SiGit, SiPostman, SiIntellijidea, SiSelenium,
+  SiDocker
+} from "react-icons/si";
+import { FaJava, FaMicrosoft, FaDatabase, FaAws, FaCode } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -48,17 +56,80 @@ function About3DBackground() {
   );
 }
 
-const skills = [
-  "Java 1.8", "Spring Framework", "SQL", "RESTful APIs", 
-  "React", "Node.js", "TypeScript", "MySQL", "Cloud Solutions"
+const skillCategories = [
+  {
+    title: "Programming Languages",
+    icon: Code,
+    skills: [
+      { name: "Java", icon: FaJava, color: "#ED8B00" },
+      { name: "JavaScript", icon: SiJavascript, color: "#F7DF1E" },
+      { name: "TypeScript", icon: SiTypescript, color: "#3178C6" },
+      { name: "Python", icon: SiPython, color: "#3776AB" },
+      { name: "C++", icon: SiCplusplus, color: "#00599C" },
+    ],
+  },
+  {
+    title: "Backend Technologies",
+    icon: Rocket,
+    skills: [
+      { name: "ASP.NET Core", icon: SiDotnet, color: "#512BD4" },
+      { name: "Spring Boot", icon: SiSpringboot, color: "#6DB33F" },
+      { name: "Microservices", icon: SiDocker, color: "#2496ED" },
+    ],
+  },
+  {
+    title: "Frontend Technologies",
+    icon: Code,
+    skills: [
+      { name: "ReactJS", icon: SiReact, color: "#61DAFB" },
+      { name: "Redux", icon: SiRedux, color: "#764ABC" },
+      { name: "HTML5", icon: SiHtml5, color: "#E34F26" },
+      { name: "CSS3", icon: SiCss3, color: "#1572B6" },
+    ],
+  },
+  {
+    title: "Databases",
+    icon: GraduationCap,
+    skills: [
+      { name: "MySQL", icon: SiMysql, color: "#4479A1" },
+      { name: "PostgreSQL", icon: SiPostgresql, color: "#4169E1" },
+      { name: "MongoDB", icon: SiMongodb, color: "#47A248" },
+      { name: "SQL Server", icon: FaDatabase, color: "#CC2927" },
+    ],
+  },
+  {
+    title: "Cloud Platforms",
+    icon: Rocket,
+    skills: [
+      { name: "AWS", icon: FaAws, color: "#FF9900" },
+      { name: "Azure", icon: FaMicrosoft, color: "#0078D4" },
+    ],
+  },
+  {
+    title: "DevOps & Tools",
+    icon: Briefcase,
+    skills: [
+      { name: "Git", icon: SiGit, color: "#F05032" },
+      { name: "Postman", icon: SiPostman, color: "#FF6C37" },
+      { name: "VS Code", icon: FaCode, color: "#5C2D91" },
+      { name: "IntelliJ", icon: SiIntellijidea, color: "#000000" },
+      { name: "Selenium", icon: SiSelenium, color: "#43B02A" },
+    ],
+  },
+  {
+    title: "Core Competencies",
+    icon: Brain,
+    textOnly: true,
+    items: ["Full Stack Dev", "MVC Architecture", "REST APIs", "Cloud-Native Apps", "Agile/Scrum"],
+  },
+  {
+    title: "Soft Skills",
+    icon: Users,
+    textOnly: true,
+    items: ["Technical Leadership", "Team Management", "Problem-Solving", "Cross-functional Collaboration"],
+  },
 ];
 
-const experience = [
-  { company: "PODTECH", role: "Software Developer", period: "May 2025 - Present" },
-  { company: "LTIMindtree", role: "Software Engineer", period: "Nov 2024 - Jan 2025" },
-  { company: "byteXL", role: "DSA & OOPs Instructor", period: "Aug 2024 - Nov 2024" },
-  { company: "Universal Justice Times", role: "Full-Stack Developer", period: "Jul 2023 - Nov 2023" },
-];
 
 export function AboutModal({ isOpen, onClose }: AboutModalProps) {
   return (
@@ -96,10 +167,10 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <X className="w-5 h-5" />
               </Button>
 
-              <CardContent className="p-6 md:p-8">
+              <CardContent className="p-6 md:p-8 pt-10 md:pt-12">
                 <div className="flex flex-col items-center text-center">
                   <motion.div 
-                    className="relative mb-6"
+                    className="relative mb-6 mt-4"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", delay: 0.2 }}
@@ -168,48 +239,43 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                   >
-                    <h3 className="text-sm font-display font-semibold text-muted-foreground mb-3 flex items-center justify-center gap-2">
+                    <h3 className="text-sm font-display font-semibold text-muted-foreground mb-4 flex items-center justify-center gap-2">
                       <GraduationCap className="w-4 h-4" />
                       Skills & Technologies
                     </h3>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {skills.map((skill, idx) => (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                      {skillCategories.map((category, catIdx) => (
                         <motion.div
-                          key={skill}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.5 + idx * 0.05 }}
+                          key={category.title}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 + catIdx * 0.08 }}
+                          className="bg-background/50 rounded-lg p-3 border border-border/50"
                         >
-                          <Badge variant="outline" className="text-xs">
-                            {skill}
-                          </Badge>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-
-                  <motion.div 
-                    className="w-full mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                  >
-                    <h3 className="text-sm font-display font-semibold text-muted-foreground mb-3 flex items-center justify-center gap-2">
-                      <Briefcase className="w-4 h-4" />
-                      Experience
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {experience.map((exp, idx) => (
-                        <motion.div
-                          key={exp.company}
-                          initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.6 + idx * 0.1 }}
-                          className="p-3 rounded-lg bg-muted/30 border border-border/50 text-left"
-                        >
-                          <p className="font-medium text-sm text-foreground">{exp.company}</p>
-                          <p className="text-xs text-muted-foreground">{exp.role}</p>
-                          <p className="text-xs text-primary/70">{exp.period}</p>
+                          <div className="flex items-center gap-2 mb-2">
+                            <category.icon className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-semibold text-foreground">{category.title}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {category.textOnly && category.items ? (
+                              category.items.map((item, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs py-0.5">
+                                  {item}
+                                </Badge>
+                              ))
+                            ) : (
+                              category.skills?.map((skill, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 border border-border/30"
+                                  title={skill.name}
+                                >
+                                  <skill.icon className="w-3.5 h-3.5" style={{ color: skill.color }} />
+                                  <span className="text-xs text-foreground/80">{skill.name}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
                         </motion.div>
                       ))}
                     </div>
@@ -219,7 +285,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                     className="flex flex-wrap justify-center gap-3 mb-6"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
+                    transition={{ delay: 0.6 }}
                   >
                     <Button 
                       variant="outline" 
@@ -254,7 +320,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                     className="w-full pt-4 border-t border-border/50"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
+                    transition={{ delay: 0.7 }}
                   >
                     <p className="text-sm text-muted-foreground" data-testid="text-about-footer">
                       Crafted with passion by <span className="text-primary font-medium">Sahil Vashisht</span>

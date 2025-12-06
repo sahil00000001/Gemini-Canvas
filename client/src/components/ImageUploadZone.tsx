@@ -20,28 +20,52 @@ export function ImageUploadZone({
 }: ImageUploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
 
+  const convertToSupportedFormat = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        if (file.type === 'image/gif') {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const pngData = canvas.toDataURL('image/png');
+              resolve(pngData);
+            } else {
+              resolve(result);
+            }
+          };
+          img.src = result;
+        } else {
+          resolve(result);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }, []);
+
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          onImageUpload(result);
-        };
-        reader.readAsDataURL(file);
+        const imageData = await convertToSupportedFormat(file);
+        onImageUpload(imageData);
       }
     },
-    [onImageUpload]
+    [onImageUpload, convertToSupportedFormat]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".webp", ".gif"],
+      "image/*": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".tiff", ".svg"],
     },
     maxFiles: 1,
-    maxSize: 10 * 1024 * 1024,
     disabled: isAnalyzing,
     onDragEnter: () => setIsDragging(true),
     onDragLeave: () => setIsDragging(false),
@@ -134,7 +158,7 @@ export function ImageUploadZone({
             {isDragActive ? "Drop your design here" : "Drop your design here or click to upload"}
           </p>
           <p className="text-sm text-muted-foreground" data-testid="text-upload-formats">
-            PNG, JPG, WebP up to 10MB
+            PNG, JPG, WebP, GIF and more - any size
           </p>
         </div>
       </div>

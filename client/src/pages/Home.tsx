@@ -78,9 +78,9 @@ export default function Home() {
         onAboutClick={() => setIsAboutOpen(true)}
       />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6 max-w-[1800px]">
         <motion.div 
-          className="grid lg:grid-cols-2 gap-8 min-h-[calc(100vh-12rem)]"
+          className="grid lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6 min-h-[calc(100vh-10rem)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -123,7 +123,7 @@ export default function Home() {
           </motion.section>
 
           <motion.section 
-            className="bg-card/30 rounded-2xl border border-border/50 overflow-auto max-h-[calc(100vh-12rem)]"
+            className="bg-card/30 rounded-2xl border border-border/50 overflow-auto min-h-[600px] max-h-[calc(100vh-8rem)]"
             data-testid="section-suggestions"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}

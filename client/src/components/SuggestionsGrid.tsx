@@ -1,4 +1,5 @@
 import { SuggestionCard } from "./SuggestionCard";
+import { PriorityImprovements } from "./PriorityImprovements";
 import { motion } from "framer-motion";
 import type { DesignCritique, SuggestionCard as SuggestionCardType } from "@shared/schema";
 
@@ -9,6 +10,15 @@ interface SuggestionsGridProps {
 
 function createSuggestionCards(critique: DesignCritique): SuggestionCardType[] {
   return [
+    {
+      id: "score",
+      category: "score",
+      title: "Design Score",
+      content: critique.score,
+      icon: "Star",
+      color: "gold",
+      span: 2,
+    },
     {
       id: "overall",
       category: "overallImpression",
@@ -53,24 +63,6 @@ function createSuggestionCards(critique: DesignCritique): SuggestionCardType[] {
       icon: "Layout",
       color: "emerald",
       span: 1,
-    },
-    {
-      id: "score",
-      category: "score",
-      title: "Design Score",
-      content: critique.score,
-      icon: "Star",
-      color: "gold",
-      span: 2,
-    },
-    {
-      id: "improvements",
-      category: "improvements",
-      title: "Top 3 Priority Improvements",
-      content: critique.improvements,
-      icon: "ArrowUp",
-      color: "red",
-      span: 2,
     },
   ];
 }
@@ -155,18 +147,21 @@ export function SuggestionsGrid({ critique, isLoading }: SuggestionsGridProps) {
   };
 
   return (
-    <motion.div 
-      className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6" 
-      data-testid="grid-suggestions"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {cards.map((card, index) => (
-        <motion.div key={card.id} variants={itemVariants}>
-          <SuggestionCard card={card} index={index} />
-        </motion.div>
-      ))}
-    </motion.div>
+    <div className="p-6" data-testid="grid-suggestions">
+      <PriorityImprovements improvements={critique.improvements} />
+      
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 gap-6" 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {cards.map((card, index) => (
+          <motion.div key={card.id} variants={itemVariants}>
+            <SuggestionCard card={card} index={index} />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
   );
 }
